@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Focuslist — Task Manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1d2520;
+    --paper:#f6f3ec;
+    --card:#ffffff;
+    --moss:#3f6b4f;
+    --moss-deep:#2c4d39;
+    --clay:#c4673f;
+    --line:#e3ddcf;
+    --muted:#7a7468;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+  }
+  .wrap{
+    max-width:640px;
+    margin:0 auto;
+    padding:64px 24px 80px;
+  }
+  header{
+    margin-bottom:40px;
+  }
+  .eyebrow{
+    font-size:13px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--moss);
+    font-weight:600;
+    margin-bottom:10px;
+  }
+  h1{
+    font-family:'Fraunces',serif;
+    font-size:42px;
+    font-weight:600;
+    margin:0 0 8px;
+    line-height:1.05;
+  }
+  .sub{
+    color:var(--muted);
+    font-size:15px;
+    margin:0;
+  }
+  .progress-row{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin:28px 0 8px;
+  }
+  .bar{
+    flex:1;
+    height:6px;
+    background:var(--line);
+    border-radius:99px;
+    overflow:hidden;
+  }
+  .bar-fill{
+    height:100%;
+    background:var(--moss);
+    border-radius:99px;
+    transition:width .35s ease;
+  }
+  .progress-label{
+    font-size:13px;
+    color:var(--muted);
+    white-space:nowrap;
+    font-variant-numeric:tabular-nums;
+  }
+  form{
+    display:flex;
+    gap:10px;
+    margin:28px 0 30px;
+  }
+  input[type=text]{
+    flex:1;
+    padding:14px 16px;
+    border:1px solid var(--line);
+    border-radius:10px;
+    background:var(--card);
+    font-family:'Inter',sans-serif;
+    font-size:15px;
+    color:var(--ink);
+    outline:none;
+    transition:border-color .15s;
+  }
+  input[type=text]:focus{ border-color:var(--moss); }
+  input[type=text]::placeholder{ color:#b3ad9d; }
+  button.add{
+    padding:0 22px;
+    border:none;
+    border-radius:10px;
+    background:var(--moss-deep);
+    color:#fff;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+    transition:background .15s;
+  }
+  button.add:hover{ background:var(--moss); }
+  button.add:focus-visible, input:focus-visible, .pill:focus-visible, .icon-btn:focus-visible{
+    outline:2px solid var(--clay);
+    outline-offset:2px;
+  }
+  .filters{
+    display:flex;
+    gap:8px;
+    margin-bottom:18px;
+  }
+  .pill{
+    border:1px solid var(--line);
+    background:transparent;
+    color:var(--muted);
+    padding:7px 14px;
+    border-radius:99px;
+    font-size:13px;
+    font-weight:500;
+    cursor:pointer;
+    font-family:'Inter',sans-serif;
+  }
+  .pill.active{
+    background:var(--ink);
+    color:#fff;
+    border-color:var(--ink);
+  }
+  ul.list{
+    list-style:none;
+    margin:0;
+    padding:0;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  li.task{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:14px 14px;
+    animation:rise .25s ease;
+  }
+  @keyframes rise{
+    from{ opacity:0; transform:translateY(4px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+  .check{
+    width:21px;
+    height:21px;
+    border-radius:6px;
+    border:1.5px solid #c9c2b0;
+    background:#fff;
+    flex:0 0 auto;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#fff;
+    font-size:13px;
+  }
+  .check.done{
+    background:var(--moss);
+    border-color:var(--moss);
+  }
+  .task-text{
+    flex:1;
+    font-size:15px;
+    word-break:break-word;
+  }
+  .task-text.done{
+    color:#a39d8e;
+    text-decoration:line-through;
+  }
+  .icon-btn{
+    border:none;
+    background:transparent;
+    color:#c2bba9;
+    cursor:pointer;
+    font-size:18px;
+    line-height:1;
+    padding:4px;
+    border-radius:6px;
+  }
+  .icon-btn:hover{ color:var(--clay); }
+  .empty{
+    text-align:center;
+    padding:48px 20px;
+    color:var(--muted);
+  }
+  .empty .glyph{
+    font-family:'Fraunces',serif;
+    font-size:30px;
+    color:var(--ink);
+    margin-bottom:6px;
+  }
+  footer{
+    margin-top:36px;
+    text-align:center;
+    font-size:12.5px;
+    color:#b3ad9d;
+  }
+  @media (max-width:480px){
+    h1{ font-size:32px; }
+    .wrap{ padding:40px 18px 60px; }
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<script type="text/babel">
+const { useState, useEffect, useMemo } = React;
+
+const STORAGE_KEY = "focuslist.tasks.v1";
+
+function loadTasks() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function App() {
+  const [tasks, setTasks] = useState(loadTasks());
+  const [draft, setDraft] = useState("");
+  const [filter, setFilter] = useState("all"); // all | active | done
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+  }, [tasks]);
+
+  function addTask(e) {
+    e.preventDefault();
+    const text = draft.trim();
+    if (!text) return;
+    setTasks(prev => [
+      { id: Date.now().toString(36), text, done: false },
+      ...prev
+    ]);
+    setDraft("");
+  }
+
+  function toggleTask(id) {
+    setTasks(prev => prev.map(t => t.id === id ? { ...t, done: !t.done } : t));
+  }
+
+  function deleteTask(id) {
+    setTasks(prev => prev.filter(t => t.id !== id));
+  }
+
+  const filtered = useMemo(() => {
+    if (filter === "active") return tasks.filter(t => !t.done);
+    if (filter === "done") return tasks.filter(t => t.done);
+    return tasks;
+  }, [tasks, filter]);
+
+  const doneCount = tasks.filter(t => t.done).length;
+  const pct = tasks.length ? Math.round((doneCount / tasks.length) * 100) : 0;
+
+  return (
+    <div className="wrap">
+      <header>
+        <div className="eyebrow">Focuslist</div>
+        <h1>What matters today.</h1>
+        <p className="sub">A quiet place to track the few things worth finishing.</p>
+      </header>
+
+      <div className="progress-row">
+        <div className="bar"><div className="bar-fill" style={{ width: pct + "%" }} /></div>
+        <span className="progress-label">{doneCount}/{tasks.length} done</span>
+      </div>
+
+      <form onSubmit={addTask}>
+        <input
+          type="text"
+          placeholder="Add a task and press Enter…"
+          value={draft}
+          onChange={e => setDraft(e.target.value)}
+        />
+        <button className="add" type="submit">Add</button>
+      </form>
+
+      <div className="filters">
+        {["all", "active", "done"].map(f => (
+          <button
+            key={f}
+            className={"pill" + (filter === f ? " active" : "")}
+            onClick={() => setFilter(f)}
+          >
+            {f === "all" ? "All" : f === "active" ? "Active" : "Completed"}
+          </button>
+        ))}
+      </div>
+
+      {filtered.length === 0 ? (
+        <div className="empty">
+          <div className="glyph">—</div>
+          <div>{tasks.length === 0 ? "Nothing on the list yet. Add your first task above." : "No tasks in this view."}</div>
+        </div>
+      ) : (
+        <ul className="list">
+          {filtered.map(t => (
+            <li className="task" key={t.id}>
+              <button
+                className={"check" + (t.done ? " done" : "")}
+                onClick={() => toggleTask(t.id)}
+                aria-label={t.done ? "Mark as not done" : "Mark as done"}
+              >
+                {t.done ? "✓" : ""}
+              </button>
+              <span className={"task-text" + (t.done ? " done" : "")}>{t.text}</span>
+              <button className="icon-btn" onClick={() => deleteTask(t.id)} aria-label="Delete task">✕</button>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <footer>Built with React · Saved locally in your browser</footer>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
